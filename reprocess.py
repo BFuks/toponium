@@ -21,7 +21,7 @@ out_file = gzip.open('unweighted_events_new.lhe.gz','wb');
 
 # Reading variables initialisation
 in_event     = False;
-missing_tops = []
+missing_tops = 0
 event        = []
 
 # colour patterns:
@@ -64,6 +64,7 @@ for line in in__file:
            # Do we have a missing top ?
            pdgcodes = [int(re.match(r'\s*(-?\d+)', entry.decode()).group()) for entry in event if re.match(r'\s*(-?\d+)', entry.decode())]
            if not 6 in pdgcodes:
+              missing_tops+=1
               pos_w, prt_w = next(((i, line.decode().strip()) for i, line in enumerate(event) if line.decode().strip().startswith('24')), (None, None))
               prt_w = "       "+prt_w.replace("1    2", str(pos_w-1)+"    "+str(pos_w-1))
               prt_b = "       "+next((line.decode().strip() for line in event if line.decode().strip().startswith('5')), None).replace("1    2", str(pos_w-1)+"    "+str(pos_w-1))
@@ -82,6 +83,7 @@ for line in in__file:
               event.insert(pos_w, prt_t.encode())
 
            if not -6 in pdgcodes:
+              missing_tops+=1
               pos_w, prt_w = next(((i, line.decode().strip()) for i, line in enumerate(event) if line.decode().strip().startswith('-24')), (None, None))
               prt_w = "       "+prt_w.replace("1    2", str(pos_w-1)+"    "+str(pos_w-1))
               prt_b = "       "+next((line.decode().strip() for line in event if line.decode().strip().startswith('-5')), None).replace("1    2", str(pos_w-1)+"    "+str(pos_w-1))
@@ -131,7 +133,7 @@ for line in in__file:
                if not init_line_written and not entry.decode().strip().startswith("<event>"):
                    init_line_written = True
                    myentry = entry.decode().strip().split()
-                   myentry[0]=str(int(myentry[0])+1)
+                   myentry[0]=str(int(myentry[0])+1+missing_tops)
                    out_file.write((" ".join(myentry)+'\n').encode())
                    if debug: print(" ".join(myentry)+'\n')
                # antitop or antibottom
@@ -171,7 +173,7 @@ for line in in__file:
                        out_file.write(updatemothers(entry))
                        if debug: print(updatemothers(entry).decode())
            event = [];
-           missing_tops = []
+           missing_tops = 0
            init_line_written=False
            if debug:
                sys.exit()
