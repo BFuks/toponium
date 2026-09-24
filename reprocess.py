@@ -30,6 +30,13 @@ bbar_pattern = re.compile(br'^\s*-5\s+\d+\s+\d+\s+\d+\s+\d+\s+(\d+)\s')
 t_pattern = re.compile(br'^\s*6+\s+\d+\s+\d+\s+\d+\s+(\d+)\s')
 tbar_pattern = re.compile(br'^\s*-6\s+\d+\s+\d+\s+\d+\s+\d+\s+(\d+)\s')
 
+def updatecolours(entry, old_colours, new_colour):
+    myentry = entry.decode().strip().split()
+    if len(myentry) < 6: raise ValueError("Malformed LHE particle record: " + entry.decode().rstrip())
+    for index in (4, 5):
+        if myentry[index] in old_colours: myentry[index] = str(new_colour)
+    return "       ".encode() + (" ".join(myentry)+"\n").encode()
+
 # Momenta patterns
 pt_pattern = re.compile(br'^\s*6\s+\d+\s+\d+\s+\d+\s+\d+\s+0\s+([+-]?\d+\.\d+e[+-]?\d+)\s+([+-]?\d+\.\d+e[+-]?\d+)\s+([+-]?\d+\.\d+e[+-]?\d+)\s+([+-]?\d+\.\d+e[+-]?\d+)\s')
 ptbar_pattern = re.compile(br'^\s*-6\s+\d+\s+\d+\s+\d+\s+0\s+\d+\s+([+-]?\d+\.\d+e[+-]?\d+)\s+([+-]?\d+\.\d+e[+-]?\d+)\s+([+-]?\d+\.\d+e[+-]?\d+)\s+([+-]?\d+\.\d+e[+-]?\d+)\s')
@@ -138,22 +145,27 @@ for line in in__file:
                    if debug: print(" ".join(myentry)+'\n')
                # antitop or antibottom
                elif entry.decode().strip().startswith("-6"):
-                   out_file.write(updatemothers(entry, pid="3").decode().replace(bbar_colour_code,'505').encode())
-                   if debug: print(updatemothers(entry, pid="3").decode().replace(bbar_colour_code,'505'))
+                   updated_entry = updatecolours(updatemothers(entry, pid="3"), {bbar_colour_code}, '505')
+                   out_file.write(updated_entry)
+                   if debug: print(updated_entry.decode(), end='')
                elif entry.decode().strip().startswith("-5"):
-                   out_file.write(updatemothers(entry).decode().replace(bbar_colour_code,'505').encode())
-                   if debug: print(updatemothers(entry).decode().replace(bbar_colour_code,'505'))
+                   updated_entry = updatecolours(updatemothers(entry), {bbar_colour_code}, '505')
+                   out_file.write(updated_entry)
+                   if debug: print(updated_entry.decode(), end='')
                # top or bottom
                elif entry.decode().strip().startswith("6"):
-                   out_file.write(updatemothers(entry, pid="3").decode().replace(b_colour_code,'505').encode())
-                   if debug: print(updatemothers(entry, pid="3").decode().replace(b_colour_code,'505'))
+                   updated_entry = updatecolours(updatemothers(entry, pid="3"), {b_colour_code}, '505')
+                   out_file.write(updated_entry)
+                   if debug: print(updated_entry.decode(), end='')
                elif entry.decode().strip().startswith("5"):
-                   out_file.write(updatemothers(entry).decode().replace(b_colour_code,'505').encode())
-                   if debug: print(updatemothers(entry).decode().replace(b_colour_code,'505'))
+                   updated_entry = updatecolours(updatemothers(entry), {b_colour_code}, '505')
+                   out_file.write(updated_entry)
+                   if debug: print(updated_entry.decode(), end='')
                # gluon
-               elif ' -1 ' in entry.decode():
-                   out_file.write(entry.decode().replace(b_colour_code,'506').replace(bbar_colour_code,'506').encode())
-                   if debug: print(entry.decode().replace(b_colour_code,'506').replace(bbar_colour_code,'506'))
+               elif ' -1 ' in entry.decode() and entry.decode().strip().split()[1]=="-1":
+                   updated_entry = updatecolours(entry, {b_colour_code, bbar_colour_code}, '506')
+                   out_file.write(updated_entry)
+                   if debug: print(updated_entry.decode(), end='')
                    ninit+=1
                    if ninit==2:
                        toponium = ['      ', 32, '', 2,'  ',1,'  ', 2,'  ', 0,'  ', 0,
