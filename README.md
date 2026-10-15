@@ -1,6 +1,6 @@
 # Generating toponium events with MG5_aMC
 
-This guide documents the MG5_aMC modifications for colour-singlet, S-wave top-antitop production with Green's-function re-weighting. It follows section 3 of [2411.18962v2](https://arxiv.org/abs/2411.18962), updated for the single-grid format supplied in this directory and for a consistent choice of the top mass and width.
+This guide documents the MG5_aMC modifications for colour-singlet, S-wave top-antitop production with Green's-function re-weighting. It follows section 3 of [2411.18962](https://arxiv.org/abs/2411.18962), updated for the single-grid format supplied in this directory and for a consistent choice of the top mass and width.
 
 The prescribed event-selection region for this implementation is **`-6 <= E <= 4 GeV` and `p* <= 50 GeV`**.
 
@@ -8,7 +8,7 @@ The prescribed event-selection region for this implementation is **`-6 <= E <= 4
 
 ## 1. Initialisation
 
-Generate the process with your MG5_aMC installation according to the instructions given in [2411.18962v2](https://arxiv.org/abs/2411.18962), then edit its generated `driver.f` and matrix-element source file `matrix1_orig.f` as described below. Copy the Green's function grid [Gmap_S_1725_131_coulomb.txt](Gmap_S_1725_131_coulomb.txt) (complex S-wave Green's function at `mt = 172.5 GeV`, `Gamma_t = 1.315 GeV`) into the directory `SubProcesses/P1_gg_wpbwmbx_wp_lvl_wm_lvl`. 
+For the di-leptonic case, generate the process with your MG5_aMC installation according to the instructions given in [2411.18962](https://arxiv.org/abs/2411.18962), then edit its generated `driver.f` and matrix-element source file `matrix1_orig.f` as described below. Copy and unpack the Green's function grid [Gmap_S_1725_131_coulomb.tar.gz](Gmap_S_1725_131_coulomb.tar.gz) (complex S-wave Green's function at `mt = 172.5 GeV`, `Gamma_t = 1.315 GeV`) into the directory `SubProcesses/P1_gg_wpbwmbx_wp_lvl_wm_lvl`. For the single leptonic case, the procedure is similar but two occurrences of the files are concerned, located in the directories `SubProcesses/P1_gg_wpbwmbx_wp_lvl_wm_qq` and `SubProcesses/P2_gg_wpbwmbx_wp_qqwm_lvl`. More information can be found in [2512.03220](https://arxiv.org/abs/2512.03220).
 
 
 ## 2. Fortran modifications
@@ -53,7 +53,7 @@ In `matrix1_orig.f`, locate the function `MATRIX1` and add `USE GREENDATA` befor
       IMPLICIT NONE
 ```
 
-Within the same function, locate the `COLOR DATA` block. The generated colour matrix includes both singlet and octet contributions:
+Within the same function, locate the `COLOR DATA` block. The generated colour matrix includes both singlet and octet contributions. Taking the example of the di-lepton case, the original block reads
 
 ```fortran
       DATA (CF(I,1),I=1,2) /
@@ -64,7 +64,7 @@ C     1 T(1,2,5,8)
 C     1 T(2,1,5,8)
 ```
 
-Replace this block with the following to retain only the colour-singlet contribution:
+We should replace this block with the following to retain only the colour-singlet contribution:
 
 ```fortran
       DATA (CF(I,1),I=1,2) /
@@ -74,6 +74,8 @@ C     1 T(1,2,5,8)
      $ 6.666666666666666D-01,6.666666666666666D-01/
 C     1 T(2,1,5,8)
 ```
+In the single-leptonic case, these numbers are all multiplied by 3.
+
 
 ### 2.3 Reconstruct the kinematics
 
