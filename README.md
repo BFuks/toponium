@@ -195,7 +195,7 @@ After the colour contraction has filled `MATRIX1`, and before the
       IF (EXXX.LT.EMIN .OR. EXXX.GT.EMAX .OR. MXXX.GT.PMAX) THEN
           MATRIX1 = MATRIX1*1.D-16
       ELSE
-         CALL CALCGREEN(EXXX,MXXX,GREEN,MDL_MT,MDL_WT)
+         CALL CALCGREEN(EXXX,MXXX,MDL_MT,MDL_WT, GREEN)
          MATRIX1 = DBLE(GREEN*DCONJG(GREEN))*MATRIX1
       ENDIF
 ```
